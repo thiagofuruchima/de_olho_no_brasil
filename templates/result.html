@@ -21,13 +21,27 @@
 	<p class="text-center">Qual o sentimento da população em relação aos serviços públicos, medido pelas redes sociais?</p>
 	<hr />
 
+    <h3 class="text-center">Foram analisados {{ df_value_counts.sum() }} tweets.</h3>
+
 	<div class="alert alert-success">
-        Sentimento apurado para <strong>{{ tema }}</strong> no período <strong>{{df_result.index.min()}}</strong> até <strong>{{df_result.index.max()}}</strong>!
+        Sentimento apurado para <strong>{{ tema }}</strong> no período <strong>{{df_result.index.min().strftime('%d/%m/%y %H:%M')}}</strong> até <strong>{{df_result.index.max().strftime('%d/%m/%y %H:%M')}}</strong>!
 	</div>
 
-	<div>
-        <canvas id="myChart"></canvas>
+    <div>
+        <canvas id="myChart3"></canvas>
 	</div>
+    <hr/>
+
+    <p class="text-center" >Abaixo, detalhamento dos totais por sentimento:</p>
+
+    <div class="row">
+        <div class="col-sm-8">
+            <canvas id="myChart1"></canvas>
+        </div>
+        <div class="col-sm-4">
+            <canvas id="myChart2"></canvas>
+        </div>
+    </div>
 
 	<hr />
 
@@ -61,23 +75,75 @@
 	<script>
 		$(function() {
 			// <![CDATA[
-			var ctx = document.getElementById('myChart').getContext('2d');
+			var ctx = document.getElementById('myChart1').getContext('2d');
 			var chart = new Chart(ctx, {
+				// The type of chart we want to create
+				type: 'bar',
+
+				// The data for our dataset
+				data: {
+					labels: [{%for idx in df_value_counts.index %} '{{idx}}', {%endfor%}],
+					datasets: [{
+						label: 'Totais',
+						data: [{%for value in df_value_counts %} '{{value}}', {%endfor%}],
+                        backgroundColor: ['rgba(54, 162, 235, 0.2)', 'rgba(75, 192, 192, 0.2)', 'rgba(255, 99, 132, 0.2)', 'rgba(255, 159, 64, 0.2)', 'rgba(255, 205, 86, 0.2)'],
+						borderColor:['rgb(54, 162, 235)', 'rgb(75, 192, 192)', 'rgb(255, 99, 132)','rgb(255, 159, 64)','rgb(255, 205, 86)'],
+						borderWidth:1}
+                    ]
+				},
+
+				// Configuration options go here
+				options: {
+						title: {
+								display: false,
+								text: 'Custom Chart Title'
+					}
+				}
+			});
+
+            var ctx2 = document.getElementById('myChart2').getContext('2d');
+			var chart = new Chart(ctx2, {
+				// The type of chart we want to create
+				type: 'pie',
+
+				// The data for our dataset
+				data: {
+					labels: [{%for idx in df_value_counts_percent.index %} '{{idx}}', {%endfor%}],
+					datasets: [{
+						label: '% Totais',
+						data: [{%for value in df_value_counts_percent %} '{{value*100}}', {%endfor%}],
+                        backgroundColor: ['rgba(54, 162, 235, 0.2)', 'rgba(75, 192, 192, 0.2)', 'rgba(255, 99, 132, 0.2)', 'rgba(255, 159, 64, 0.2)', 'rgba(255, 205, 86, 0.2)'],
+						borderColor:['rgb(54, 162, 235)', 'rgb(75, 192, 192)', 'rgb(255, 99, 132)','rgb(255, 159, 64)','rgb(255, 205, 86)'],
+						borderWidth:1}
+                    ]
+				},
+
+				// Configuration options go here
+				options: {
+						title: {
+								display: false,
+								text: 'Custom Chart Title'
+					}
+				}
+			});
+
+			var ctx3 = document.getElementById('myChart3').getContext('2d');
+			var chart3 = new Chart(ctx3, {
 				// The type of chart we want to create
 				type: 'line',
 
 				// The data for our dataset
 				data: {
-					labels: [{%for idx in df_result.index %} '{{idx}}', {%endfor%}],
+					labels: [{%for idx in df_result.index %} '{{idx.strftime('%d/%b/%y %H:%M')}}', {%endfor%}],
 					datasets: [{
-						label: 'Sentimento Positivo',
-						data: [{%for positive in df_result['positive'] %} '{{positive}}', {%endfor%}],
+						label: '% Sentimento Positivo',
+						data: [{%for positive in df_result['positive'] %} '{{positive*100}}', {%endfor%}],
 						backgroundColor: ['rgba(75, 192, 192, 0.2)'],
 						borderColor:['rgb(75, 192, 192)'],
 						borderWidth:1,
                         tension: 0.1},
-                        {label: 'Sentimento Negativo',
-						data: [{%for positive in df_result['negative'] %} '{{positive}}', {%endfor%}],
+                        {label: '% Sentimento Negativo',
+						data: [{%for negative in df_result['negative'] %} '{{negative*100}}', {%endfor%}],
 						backgroundColor: ['rgba(255, 99, 132, 0.2)'],
 						borderColor:['rgb(255, 99, 132)'],
 						borderWidth:1,
@@ -93,7 +159,7 @@
 					}
 				}
 			});
-		});
+        });
 		// ]]>
 	</script>
 

@@ -54,13 +54,18 @@ def create_app(mode='dev'):
 
             df = pd.DataFrame(results.mappings().all())
 
+            print(df['sentiment_label'].value_counts())
+
             df.set_index('tweet_created_at', inplace=True)
 
             df_result = \
             df.resample('h')['sentiment_label'].value_counts(
                 normalize=True).unstack('sentiment_label')[['positive', 'neutral', 'negative']]
 
-        return render_template('result.html', tema=tema, df_result=df_result)
+        return render_template('result.html', tema=tema,
+                               df_result=df_result,
+                               df_value_counts=df['sentiment_label'].value_counts(),
+                               df_value_counts_percent=df['sentiment_label'].value_counts(normalize=True))
 
     @app.errorhandler(Exception)
     def handle_exception(e):
