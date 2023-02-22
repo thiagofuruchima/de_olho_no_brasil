@@ -15,6 +15,7 @@ def create_app(mode='dev'):
     # configure the SQLite database, relative to the app instance folder
     # app.config["SQLALCHEMY_DATABASE_URI"] = 'postgresql+psycopg2://thiagomf:bq9E5ExCwj7Xb@postgres-minha-nuvem-db.minhanuvem.org:8081/tweet_analytics'
     app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get('SQLALCHEMY_DATABASE_URI')
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {"pool_pre_ping": True}
 
     # initialize the app with the extension
     db.init_app(app)
