@@ -2,6 +2,7 @@ from flask import Flask, render_template, flash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
 import pandas as pd
+import os
 
 
 def create_app(mode='dev'):
@@ -12,7 +13,8 @@ def create_app(mode='dev'):
     app = Flask(__name__, instance_relative_config=True)
 
     # configure the SQLite database, relative to the app instance folder
-    app.config["SQLALCHEMY_DATABASE_URI"] = 'postgresql+psycopg2://thiagomf:bq9E5ExCwj7Xb@postgres-minha-nuvem-db.minhanuvem.org:8081/tweet_analytics'
+    # app.config["SQLALCHEMY_DATABASE_URI"] = 'postgresql+psycopg2://thiagomf:bq9E5ExCwj7Xb@postgres-minha-nuvem-db.minhanuvem.org:8081/tweet_analytics'
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get('SQLALCHEMY_DATABASE_URI')
 
     # initialize the app with the extension
     db.init_app(app)
@@ -38,10 +40,7 @@ def create_app(mode='dev'):
     @app.route('/update')
     def update():
 
-        sql = '''SELECT count(sentiment_label), sentiment_label, tweet_created_at, matching_rules_tag
-                    FROM tweet_analytics
-                    GROUP BY 2, 3, 4
-                    order by 4, 3'''
+        sql = '''SELECT tweet_id, sentiment_label, tweet_created_at, matching_rules_tag FROM tweet_analytics'''
 
         results = db.session.execute(text(sql))
 
