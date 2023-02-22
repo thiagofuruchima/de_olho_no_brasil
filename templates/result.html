@@ -17,15 +17,17 @@
 		// ]]>
 		</script>
 
-	<h1 class="text-center">Ouvidoria de Serviços Públicos</h1>
+	<h1 class="text-center">DE OLHO NO BRASIL</h1>
 	<p class="text-center">Qual o sentimento da população em relação aos serviços públicos, medido pelas redes sociais?</p>
 	<hr />
 
     <h3 class="text-center">Foram analisados {{ df_value_counts.sum() }} tweets.</h3>
 
-	<div class="alert alert-success">
+	<p class="text-center">
         Sentimento apurado para <strong>{{ tema }}</strong> no período <strong>{{df_result.index.min().strftime('%d/%m/%y %H:%M')}}</strong> até <strong>{{df_result.index.max().strftime('%d/%m/%y %H:%M')}}</strong>!
-	</div>
+	</p>
+
+    <hr class="w-50 mt-1 mb-1" style="margin-left: auto; margin-right: auto;"/>
 
     <div>
         <canvas id="myChart3"></canvas>
@@ -47,7 +49,7 @@
 
 	<form class="content" action="{{ url_for('update') }}" method="post">
         <div class="row">
-            <div class="col">
+            <div class="col-8">
                 <select name="tema" class="form-select">
                     <option value="" selected>Selecione um tema/serviço público:</option>
                     <option value="Sistema Único de Saúde">Sistema Único de Saúde</option>
@@ -57,11 +59,7 @@
                     <option value="Segurança">Segurança</option>
                 </select>
             </div>
-        </div>
-        <div class="row">
-            <div class="col">&nbsp;</div>
-        </div>
-			<div class="col">
+			<div class="col-4">
 				<button id='btn_update' type="submit" class="btn btn-lg btn-primary" onclick='update()'>Atualizar</button>
 				<button id='btn_loading' type="submit" class="btn btn-lg btn-primary">
 					<i class="fa fa-refresh fa-spin"></i> Carregando...
