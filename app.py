@@ -55,18 +55,19 @@ def create_app(mode='dev'):
 
             df = pd.DataFrame(results.mappings().all())
 
-            print(df['sentiment_label'].value_counts())
+            df_sentiment_quantities = pd.DataFrame(df['sentiment_label'].value_counts()).sort_index(
+                ascending=False).reset_index().rename({'index': 'sentiment', 'sentiment_label': 'value'}, axis=1)
+
+            df_sentiment_percentages = pd.DataFrame(df['sentiment_label'].value_counts(normalize=True)).sort_index(
+                ascending=False).reset_index().rename({'index': 'sentiment', 'sentiment_label': 'value'}, axis=1)
 
             df.set_index('tweet_created_at', inplace=True)
-
-            df_result = \
-            df.resample('h')['sentiment_label'].value_counts(
-                normalize=True).unstack('sentiment_label')[['positive', 'neutral', 'negative']]
+            df_time_series = df.resample('h')['sentiment_label'].value_counts(normalize=True).unstack('sentiment_label')[['positive', 'neutral', 'negative']]
 
         return render_template('result.html', tema=tema,
-                               df_result=df_result,
-                               df_value_counts=df['sentiment_label'].value_counts(),
-                               df_value_counts_percent=df['sentiment_label'].value_counts(normalize=True))
+                               df_time_series=df_time_series,
+                               df_sentiment_quantities=df_sentiment_quantities,
+                               df_sentiment_percentages=df_sentiment_percentages)
 
     @app.errorhandler(Exception)
     def handle_exception(e):

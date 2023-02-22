@@ -21,10 +21,10 @@
 	<p class="text-center">Qual o sentimento da população em relação aos serviços públicos, medido pelas redes sociais?</p>
 	<hr />
 
-    <h3 class="text-center">Foram analisados {{ df_value_counts.sum() }} tweets.</h3>
+    <h3 class="text-center">Foram analisados {{ df_sentiment_quantities.value.sum() }} tweets.</h3>
 
 	<p class="text-center">
-        Sentimento apurado para <strong>{{ tema }}</strong> no período <strong>{{df_result.index.min().strftime('%d/%m/%y %H:%M')}}</strong> até <strong>{{df_result.index.max().strftime('%d/%m/%y %H:%M')}}</strong>!
+        Sentimento apurado para <strong>{{ tema }}</strong> no período <strong>{{df_time_series.index.min().strftime('%d/%m/%y %H:%M')}}</strong> até <strong>{{df_time_series.index.max().strftime('%d/%m/%y %H:%M')}}</strong>!
 	</p>
 
     <hr class="w-50 mt-1 mb-1" style="margin-left: auto; margin-right: auto;"/>
@@ -80,13 +80,13 @@
 
 				// The data for our dataset
 				data: {
-					labels: [{%for idx in df_value_counts.index %} '{{idx}}', {%endfor%}],
+					labels: [{%for sentiment in df_sentiment_quantities.sentiment %} '{{sentiment}}', {%endfor%}],
 					datasets: [{
-						label: 'Totais',
-						data: [{%for value in df_value_counts %} '{{value}}', {%endfor%}],
-                        backgroundColor: ['rgba(54, 162, 235, 0.2)', 'rgba(75, 192, 192, 0.2)', 'rgba(255, 99, 132, 0.2)', 'rgba(255, 159, 64, 0.2)', 'rgba(255, 205, 86, 0.2)'],
-						borderColor:['rgb(54, 162, 235)', 'rgb(75, 192, 192)', 'rgb(255, 99, 132)','rgb(255, 159, 64)','rgb(255, 205, 86)'],
-						borderWidth:1}
+						label: ['Totais'],
+						data: [{%for value in df_sentiment_quantities.value %} '{{value}}', {%endfor%}],
+                        backgroundColor: ['rgba(75, 192, 192, 0.2)', 'rgba(255, 205, 86, 0.2)', 'rgba(255, 99, 132, 0.2)'],
+						borderColor:['rgb(75, 192, 192)', 'rgb(255, 205, 86)', 'rgb(255, 99, 132)'],
+                        borderWidth:1}
                     ]
 				},
 
@@ -106,12 +106,12 @@
 
 				// The data for our dataset
 				data: {
-					labels: [{%for idx in df_value_counts_percent.index %} '{{idx}}', {%endfor%}],
+					labels: [{%for sentiment in df_sentiment_percentages.sentiment %} '{{sentiment}}', {%endfor%}],
 					datasets: [{
 						label: '% Totais',
-						data: [{%for value in df_value_counts_percent %} '{{value*100}}', {%endfor%}],
-                        backgroundColor: ['rgba(54, 162, 235, 0.2)', 'rgba(75, 192, 192, 0.2)', 'rgba(255, 99, 132, 0.2)', 'rgba(255, 159, 64, 0.2)', 'rgba(255, 205, 86, 0.2)'],
-						borderColor:['rgb(54, 162, 235)', 'rgb(75, 192, 192)', 'rgb(255, 99, 132)','rgb(255, 159, 64)','rgb(255, 205, 86)'],
+						data: [{%for value in df_sentiment_percentages.value %} '{{value*100}}', {%endfor%}],
+                        backgroundColor: ['rgba(75, 192, 192, 0.2)', 'rgba(255, 205, 86, 0.2)', 'rgba(255, 99, 132, 0.2)'],
+						borderColor:['rgb(75, 192, 192)', 'rgb(255, 205, 86)', 'rgb(255, 99, 132)'],
 						borderWidth:1}
                     ]
 				},
@@ -132,16 +132,16 @@
 
 				// The data for our dataset
 				data: {
-					labels: [{%for idx in df_result.index %} '{{idx.strftime('%d/%b/%y %H:%M')}}', {%endfor%}],
+					labels: [{%for idx in df_time_series.index %} '{{idx.strftime('%d/%b/%y %H:%M')}}', {%endfor%}],
 					datasets: [{
 						label: '% Sentimento Positivo',
-						data: [{%for positive in df_result['positive'] %} '{{positive*100}}', {%endfor%}],
+						data: [{%for positive in df_time_series['positive'] %} '{{positive*100}}', {%endfor%}],
 						backgroundColor: ['rgba(75, 192, 192, 0.2)'],
 						borderColor:['rgb(75, 192, 192)'],
 						borderWidth:1,
                         tension: 0.1},
                         {label: '% Sentimento Negativo',
-						data: [{%for negative in df_result['negative'] %} '{{negative*100}}', {%endfor%}],
+						data: [{%for negative in df_time_series['negative'] %} '{{negative*100}}', {%endfor%}],
 						backgroundColor: ['rgba(255, 99, 132, 0.2)'],
 						borderColor:['rgb(255, 99, 132)'],
 						borderWidth:1,
