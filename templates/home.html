@@ -27,7 +27,22 @@
 	</div>
 	{% endfor %}
 
-	<form class="content" action="{{ url_for('update') }}" method="get">
+	<form class="content" action="{{ url_for('update') }}" method="post">
+        <div class="row">
+            <div class="col">
+                <select name="tema" class="form-select">
+                    <option value="" selected>Selecione um tema/serviço público:</option>
+                    <option value="Sistema Único de Saúde">Sistema Único de Saúde</option>
+                    <option value="Economia">Economia</option>
+                    <option value="Saúde">Saúde</option>
+                    <option value="Educação">Educação</option>
+                    <option value="Segurança">Segurança</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">&nbsp;</div>
+        </div>
 		<div class="row">
 			<div class="col">
 				<button id='btn_update' type="submit" class="btn btn-lg btn-primary" onclick='update()'>Atualizar</button>

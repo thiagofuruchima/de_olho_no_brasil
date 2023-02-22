@@ -22,7 +22,7 @@
 	<hr />
 
 	<div class="alert alert-success">
-		Sentimento apurado para o período <strong>{{df_result.index.min()}}</strong> até <strong>{{df_result.index.max()}}</strong>!
+        Sentimento apurado para <strong>{{ tema }}</strong> no período <strong>{{df_result.index.min()}}</strong> até <strong>{{df_result.index.max()}}</strong>!
 	</div>
 
 	<div>
@@ -31,8 +31,22 @@
 
 	<hr />
 
-	<form class="content" action="{{ url_for('update') }}" method="get" enctype = "multipart/form-data">
-		<div class="row">
+	<form class="content" action="{{ url_for('update') }}" method="post">
+        <div class="row">
+            <div class="col">
+                <select name="tema" class="form-select">
+                    <option value="" selected>Selecione um tema/serviço público:</option>
+                    <option value="Sistema Único de Saúde">Sistema Único de Saúde</option>
+                    <option value="Economia">Economia</option>
+                    <option value="Saúde">Saúde</option>
+                    <option value="Educação">Educação</option>
+                    <option value="Segurança">Segurança</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">&nbsp;</div>
+        </div>
 			<div class="col">
 				<button id='btn_update' type="submit" class="btn btn-lg btn-primary" onclick='update()'>Atualizar</button>
 				<button id='btn_loading' type="submit" class="btn btn-lg btn-primary">
@@ -56,13 +70,19 @@
 				data: {
 					labels: [{%for idx in df_result.index %} '{{idx}}', {%endfor%}],
 					datasets: [{
-						label: 'Sentimento geral',
+						label: 'Sentimento Positivo',
 						data: [{%for positive in df_result['positive'] %} '{{positive}}', {%endfor%}],
 						backgroundColor: ['rgba(75, 192, 192, 0.2)'],
 						borderColor:['rgb(75, 192, 192)'],
 						borderWidth:1,
-                        tension: 0.1
-					}]
+                        tension: 0.1},
+                        {label: 'Sentimento Negativo',
+						data: [{%for positive in df_result['negative'] %} '{{positive}}', {%endfor%}],
+						backgroundColor: ['rgba(255, 99, 132, 0.2)'],
+						borderColor:['rgb(255, 99, 132)'],
+						borderWidth:1,
+                        tension: 0.1}
+                    ]
 				},
 
 				// Configuration options go here

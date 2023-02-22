@@ -1,4 +1,4 @@
-from flask import Flask, render_template, flash
+from flask import Flask, render_template, flash, request
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
 import pandas as pd
@@ -37,23 +37,30 @@ def create_app(mode='dev'):
     def about():
         return render_template('about.html')
 
-    @app.route('/update')
+    @app.route('/update', methods=['POST'])
     def update():
 
-        sql = '''SELECT tweet_id, sentiment_label, tweet_created_at, matching_rules_tag FROM tweet_analytics'''
+        if request.method == 'POST':
+            sql = '''SELECT tweet_id, sentiment_label, tweet_created_at, matching_rules_tag FROM tweet_analytics where matching_rules_tag=\'{}\''''
 
-        results = db.session.execute(text(sql))
+            tema = request.form['tema']
 
-        df = pd.DataFrame(results.mappings().all())
+            print("tema: {}".format(tema))
 
-        df.set_index('tweet_created_at', inplace=True)
+            if (tema is None) or (tema == ''):
+                raise Exception("É necessário selecionar um item da lista!")
 
-        df2 = df.query('matching_rules_tag=="Sistema Único de Saúde"').resample('h')['sentiment_label'].value_counts(
-            normalize=True).unstack('sentiment_label')[['positive', 'neutral', 'negative']]
+            results = db.session.execute(text(sql.format(tema)))
 
-        print(df2)
+            df = pd.DataFrame(results.mappings().all())
 
-        return render_template('result.html', df_result = df2)
+            df.set_index('tweet_created_at', inplace=True)
+
+            df_result = \
+            df.resample('h')['sentiment_label'].value_counts(
+                normalize=True).unstack('sentiment_label')[['positive', 'neutral', 'negative']]
+
+        return render_template('result.html', tema=tema, df_result=df_result)
 
     @app.errorhandler(Exception)
     def handle_exception(e):
