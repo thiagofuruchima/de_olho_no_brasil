@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}Result{% endblock %}
+
+{% block content %}
+
+    <script type="text/javascript" xmlns="http://www.w3.org/1999/html">
+		// <![CDATA[
+				$(document).ready(function() {
+				  $('#btn_loading').hide()
+				});
+
+				function update() {
+					$('#btn_update').hide()
+					$('#btn_loading').show()
+				};
+		// ]]>
+		</script>
+
+	<h1 class="text-center">Ouvidoria de Serviços Públicos</h1>
+	<p class="text-center">Qual o sentimento da população em relação aos serviços públicos, medido pelas redes sociais?</p>
+	<hr />
+
+	<div class="alert alert-success">
+		Sentimento apurado para o período <strong>{{df_result.index.min()}}</strong> até <strong>{{df_result.index.max()}}</strong>!
+	</div>
+
+	<div>
+        <canvas id="myChart"></canvas>
+	</div>
+
+	<hr />
+
+	<form class="content" action="{{ url_for('update') }}" method="get" enctype = "multipart/form-data">
+		<div class="row">
+			<div class="col">
+				<button id='btn_update' type="submit" class="btn btn-lg btn-primary" onclick='update()'>Atualizar</button>
+				<button id='btn_loading' type="submit" class="btn btn-lg btn-primary">
+					<i class="fa fa-refresh fa-spin"></i> Carregando...
+				</button>
+			</div>
+		</div>
+	</form>
+
+	<hr/>
+
+	<script>
+		$(function() {
+			// <![CDATA[
+			var ctx = document.getElementById('myChart').getContext('2d');
+			var chart = new Chart(ctx, {
+				// The type of chart we want to create
+				type: 'line',
+
+				// The data for our dataset
+				data: {
+					labels: [{%for idx in df_result.index %} '{{idx}}', {%endfor%}],
+					datasets: [{
+						label: 'Sentimento geral',
+						data: [{%for positive in df_result['positive'] %} '{{positive}}', {%endfor%}],
+						backgroundColor: ['rgba(75, 192, 192, 0.2)'],
+						borderColor:['rgb(75, 192, 192)'],
+						borderWidth:1,
+                        tension: 0.1
+					}]
+				},
+
+				// Configuration options go here
+				options: {
+						title: {
+								display: false,
+								text: 'Custom Chart Title'
+					}
+				}
+			});
+		});
+		// ]]>
+	</script>
+
+{% endblock %}

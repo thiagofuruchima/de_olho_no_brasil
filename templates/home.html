@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+
+    <script type="text/javascript">
+    // <![CDATA[
+            $(document).ready(function() {
+              $('#btn_loading').hide()
+            });
+
+            function update() {
+                $('#btn_update').hide()
+                $('#btn_loading').show()
+            };
+    // ]]>
+    </script>
+
+	<h1 class="text-center">Ouvidoria de Serviços Públicos</h1>
+	<p class="text-center">Qual o sentimento da população em relação aos serviços públicos, medido pelas redes sociais?</p>
+	<hr />
+
+	{% for message in get_flashed_messages() %}
+	<div class="alert alert-danger">
+		{{ message | safe }}
+	</div>
+	{% endfor %}
+
+	<form class="content" action="{{ url_for('update') }}" method="get">
+		<div class="row">
+			<div class="col">
+				<button id='btn_update' type="submit" class="btn btn-lg btn-primary" onclick='update()'>Atualizar</button>
+				<button id='btn_loading' type="submit" class="btn btn-lg btn-primary">
+					<i class="fa fa-refresh fa-spin"></i> Carregando...
+				</button>
+			</div>
+		</div>
+	</form>
+	<hr/>
+
+{% endblock %}
