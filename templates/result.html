@@ -30,34 +30,42 @@
     <hr />
     <p class="text-center">Variação do sentimento da população ao longo do tempo:</p>
     <hr class="w-50 mt-1 mb-1" style="margin-left: auto; margin-right: auto;"/>
-    <div>
-        <canvas id="myChart3"></canvas>
+    <div class="row">
+        <div class="col-sm-3"></div>
+        <div class="col-sm-6">
+            <canvas id="myChart3"></canvas>
+        </div>
+        <div class="col-sm-3"></div>
 	</div>
 
     <hr/>
     <p class="text-center">Quantidade de mensagens, positivas e negativas, por intervalo apurado:</p>
     <hr class="w-50 mt-1 mb-1" style="margin-left: auto; margin-right: auto;"/>
-    <div>
-        <canvas id="myChart4"></canvas>
+    <div class="row">
+        <div class="col-sm-3"></div>
+        <div class="col-sm-6">
+            <canvas id="myChart4"></canvas>
+        </div>
+        <div class="col-sm-3"></div>
 	</div>
 
     <hr/>
     <p class="text-center" >Detalhamento dos totais de mensagens por sentimento:</p>
     <hr class="w-50 mt-1 mb-1" style="margin-left: auto; margin-right: auto;"/>
     <div class="row">
-        <div class="col-sm-8">
+        <div class="col-sm-3"></div>
+        <div class="col-sm-6">
             <canvas id="myChart1"></canvas>
         </div>
-        <div class="col-sm-4">
-            <canvas id="myChart2"></canvas>
-        </div>
+        <div class="col-sm-3"></div>
     </div>
 
 	<hr />
     <p class="text-center"> Informações obtidas em tempo real! Clique em atualizar para obter novas mensagens: </p>
-	<form class="content" action="{{ url_for('update') }}" method="post">
+	<form class="content" action="{{ url_for('home') }}" method="post">
         <div class="row">
-            <div class="col-8">
+            <div class="col-sm"></div>
+            <div class="col-sm-4">
                 <select name="tema" class="form-select">
                     <option value="" selected>Selecione um tema/serviço público:</option>
                     <option value="Sistema Único de Saúde">Sistema Único de Saúde</option>
@@ -67,12 +75,13 @@
                     <option value="Segurança">Segurança</option>
                 </select>
             </div>
-			<div class="col-4">
+			<div class="col-sm-2">
 				<button id='btn_update' type="submit" class="btn btn-lg btn-primary" onclick='update()'>Atualizar</button>
 				<button id='btn_loading' type="submit" class="btn btn-lg btn-primary">
 					<i class="fa fa-refresh fa-spin"></i> Carregando...
 				</button>
 			</div>
+            <div class="col-sm"></div>
 		</div>
 	</form>
 
@@ -99,23 +108,6 @@
 				},
 			});
 
-            var ctx2 = document.getElementById('myChart2').getContext('2d');
-			var chart = new Chart(ctx2, {
-				// The type of chart we want to create
-				type: 'pie',
-
-				// The data for our dataset
-				data: {
-					labels: [{%for sentiment in df_total_percentages.sentiment %} '{{sentiment}}', {%endfor%}],
-					datasets: [{
-						label: '% Totais',
-						data: [{%for value in df_total_percentages.value %} '{{value*100}}', {%endfor%}],
-                        backgroundColor: ['rgba(75, 192, 192, 0.2)', 'rgba(255, 205, 86, 0.2)', 'rgba(255, 99, 132, 0.2)'],
-						borderColor:['rgb(75, 192, 192)', 'rgb(255, 205, 86)', 'rgb(255, 99, 132)'],
-						borderWidth:1}
-                    ]
-				},
-			});
 
 			var ctx3 = document.getElementById('myChart3').getContext('2d');
 			var chart3 = new Chart(ctx3, {
