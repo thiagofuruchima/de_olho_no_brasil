@@ -24,7 +24,7 @@
     <h3 class="text-center">Foram analisados {{ df_total_quantities.value.sum() }} tweets sobre <strong>{{ tema }}</strong>.</h3>
 
 	<p class="text-center">
-        Mensagens referentes ao período {{df_time_series.index.min().strftime('%d/%m/%y %H:%M')}} até {{df_time_series.index.max().strftime('%d/%m/%y %H:%M')}}!
+        Mensagens referentes ao período {{df_time_series.index.min().strftime('%d/%m/%y')}} até {{df_time_series.index.max().strftime('%d/%m/%y')}}!
     </p>
 
     <hr />
@@ -116,7 +116,7 @@
 
 				// The data for our dataset
 				data: {
-					labels: [{%for idx in df_time_series.index %} '{{idx.strftime('%d/%b/%y %H:%M')}}', {%endfor%}],
+					labels: [{%for idx in df_time_series.index %} '{{idx.strftime('%d/%b/%y')}}', {%endfor%}],
 					datasets: [{
 						label: '% Sentimento Positivo',
 						data: [{%for positive in df_time_series['positive'] %} '{{positive*100}}', {%endfor%}],
