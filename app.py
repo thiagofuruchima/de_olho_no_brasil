@@ -62,9 +62,9 @@ def create_app(mode='dev'):
                 ascending=False).reset_index().rename({'index': 'sentiment', 'sentiment_label': 'value'}, axis=1)
 
             df.set_index('tweet_created_at', inplace=True)
-            df_time_series = df.resample('h')['sentiment_label'].value_counts(normalize=True).unstack('sentiment_label')[['positive', 'neutral', 'negative']]
+            df_time_series = df.resample('d')['sentiment_label'].value_counts(normalize=True).unstack('sentiment_label')[['positive', 'neutral', 'negative']]
 
-            df_sentiment_quantities = df.resample('h')['sentiment_label'].value_counts().unstack('sentiment_label')[['positive', 'neutral', 'negative']]
+            df_sentiment_quantities = df.resample('d')['sentiment_label'].value_counts().unstack('sentiment_label')[['positive', 'neutral', 'negative']]
 
         return render_template('result.html', tema=tema,
                                df_time_series=df_time_series,
