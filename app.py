@@ -43,39 +43,7 @@ def create_app(mode='dev'):
         if request.method == 'GET':
             return render_template('home.html')
         elif request.method == 'POST':
-            if request.method == 'POST':
-                sql = '''SELECT tweet_id, sentiment_label, tweet_created_at, matching_rules_tag FROM tweet_analytics where matching_rules_tag=\'{}\''''
-
-                tema = request.form['tema']
-
-                print("tema: {}".format(tema))
-
-                if (tema is None) or (tema == ''):
-                    raise Exception("É necessário selecionar um item da lista!")
-
-                results = db.session.execute(text(sql.format(tema)))
-
-                df = pd.DataFrame(results.mappings().all())
-
-                df_total_quantities = pd.DataFrame(df['sentiment_label'].value_counts()).sort_index(
-                    ascending=False).reset_index().rename({'index': 'sentiment', 'sentiment_label': 'value'}, axis=1)
-
-                df_total_percentages = pd.DataFrame(df['sentiment_label'].value_counts(normalize=True)).sort_index(
-                    ascending=False).reset_index().rename({'index': 'sentiment', 'sentiment_label': 'value'}, axis=1)
-
-                df.set_index('tweet_created_at', inplace=True)
-                df_time_series = \
-                    df.resample('d')['sentiment_label'].value_counts(normalize=True).unstack('sentiment_label')[
-                        ['positive', 'neutral', 'negative']]
-
-                df_sentiment_quantities = df.resample('d')['sentiment_label'].value_counts().unstack('sentiment_label')[
-                    ['positive', 'neutral', 'negative']]
-
-            return render_template('result.html', tema=tema,
-                                   df_time_series=df_time_series,
-                                   df_sentiment_quantities=df_sentiment_quantities,
-                                   df_total_quantities=df_total_quantities,
-                                   df_total_percentages=df_total_percentages)
+            return update()
         else:
             raise Exception("É necessário selecionar um item da lista!")
             return render_template('home.html')
@@ -85,7 +53,39 @@ def create_app(mode='dev'):
         return render_template('about.html')
 
     def update():
-        pass
+        if request.method == 'POST':
+            sql = '''SELECT tweet_id, sentiment_label, tweet_created_at, matching_rules_tag FROM tweet_analytics where matching_rules_tag=\'{}\''''
+
+            tema = request.form['tema']
+
+            print("tema: {}".format(tema))
+
+            if (tema is None) or (tema == ''):
+                raise Exception("É necessário selecionar um item da lista!")
+
+            results = db.session.execute(text(sql.format(tema)))
+
+            df = pd.DataFrame(results.mappings().all())
+
+            df_total_quantities = pd.DataFrame(df['sentiment_label'].value_counts()).sort_index(
+                ascending=False).reset_index().rename({'index': 'sentiment', 'sentiment_label': 'value'}, axis=1)
+
+            df_total_percentages = pd.DataFrame(df['sentiment_label'].value_counts(normalize=True)).sort_index(
+                ascending=False).reset_index().rename({'index': 'sentiment', 'sentiment_label': 'value'}, axis=1)
+
+            df.set_index('tweet_created_at', inplace=True)
+            df_time_series = \
+                df.resample('d')['sentiment_label'].value_counts(normalize=True).unstack('sentiment_label')[
+                    ['positive', 'neutral', 'negative']]
+
+            df_sentiment_quantities = df.resample('d')['sentiment_label'].value_counts().unstack('sentiment_label')[
+                ['positive', 'neutral', 'negative']]
+
+        return render_template('result.html', tema=tema,
+                               df_time_series=df_time_series,
+                               df_sentiment_quantities=df_sentiment_quantities,
+                               df_total_quantities=df_total_quantities,
+                               df_total_percentages=df_total_percentages)
 
     @app.errorhandler(Exception)
     def handle_exception(e):
