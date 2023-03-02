@@ -5,26 +5,27 @@
 {% block content %}
 
     <script type="text/javascript" xmlns="http://www.w3.org/1999/html">
-		// <![CDATA[
-				$(document).ready(function() {
-				  $('#btn_loading').hide()
-				});
+        // <![CDATA[
+                $(document).ready(function() {
+                  $('#btn_loading').hide()
+                });
 
-				function update() {
-					$('#btn_update').hide()
-					$('#btn_loading').show()
-				};
-		// ]]>
+                function update() {
+                    $('#btn_update').hide()
+                    $('#btn_compare_all').hide()
+                    $('#btn_loading').show()
+                };
+        // ]]>
 		</script>
 
     <h1 class="text-center"><strong>DE OLHO NO BRASIL</strong></h1>
 	<p class="text-center">Qual o sentimento da população em relação aos serviços públicos, medido pelas redes sociais?</p>
 	<hr />
 
-    <h3 class="text-center">Foram analisados {{ df_total_quantities.value.sum() }} tweets sobre <strong>{{ tema }}</strong>.</h3>
+    <h3 class="text-center">Foram analisados {{ result.get('total') }} tweets sobre <strong>{{ result.get('tema') }}</strong>.</h3>
 
 	<p class="text-center">
-        Mensagens referentes ao período {{df_time_series.index.min().strftime('%d/%m/%y')}} até {{df_time_series.index.max().strftime('%d/%m/%y')}}!
+        Mensagens referentes ao período {{result.get('df').index.min().strftime('%d/%m/%y')}} até {{result.get('df').index.max().strftime('%d/%m/%y')}}!
     </p>
 
     <hr />
@@ -44,7 +45,7 @@
     <div class="row">
         <div class="col-sm-3"></div>
         <div class="col-sm-6">
-            <canvas id="myChart4"></canvas>
+            <canvas id="myChart2"></canvas>
         </div>
         <div class="col-sm-3"></div>
 	</div>
@@ -75,9 +76,11 @@
                     <option value="Segurança">Segurança</option>
                 </select>
             </div>
-			<div class="col-sm-2">
-				<button id='btn_update' type="submit" class="btn btn-lg btn-primary" onclick='update()'>Atualizar</button>
-				<button id='btn_loading' type="submit" class="btn btn-lg btn-primary">
+			<div class="col-sm-3">
+				<button id='btn_update' type="submit" class="btn btn-lg btn-primary" onclick='update()'>Consultar</button>
+                <label>ou</label>
+                <a id='btn_compare_all' href="{{ url_for('compare_all') }}" class="btn btn-lg btn-info" onclick='update()'>Ver Todos!</a>
+				<button id='btn_loading' type="submit" class="btn btn-lg btn-warning">
 					<i class="fa fa-refresh fa-spin"></i> Carregando...
 				</button>
 			</div>
@@ -97,12 +100,12 @@
 
 				// The data for our dataset
 				data: {
-					labels: [{%for sentiment in df_total_quantities.sentiment %} '{{sentiment}}', {%endfor%}],
+					labels: ['Positive', 'Negative', 'Neutral'],
 					datasets: [{
 						label: ['Totais'],
-						data: [{%for value in df_total_quantities.value %} '{{value}}', {%endfor%}],
-                        backgroundColor: ['rgba(75, 192, 192, 0.2)', 'rgba(255, 205, 86, 0.2)', 'rgba(255, 99, 132, 0.2)'],
-						borderColor:['rgb(75, 192, 192)', 'rgb(255, 205, 86)', 'rgb(255, 99, 132)'],
+						data: [{{ result.get('df')['qtd_positive'].sum() }}, {{ result.get('df')['qtd_negative'].sum() }}, {{ result.get('df')['qtd_neutral'].sum() }}],
+                        backgroundColor: ['rgba(75, 192, 192, 0.2)', 'rgba(255, 99, 132, 0.2)', 'rgba(255, 205, 86, 0.2)'],
+						borderColor:['rgb(75, 192, 192)', 'rgb(255, 99, 132)', 'rgb(255, 205, 86)'],
                         borderWidth:1}
                     ]
 				},
@@ -116,16 +119,16 @@
 
 				// The data for our dataset
 				data: {
-					labels: [{%for idx in df_time_series.index %} '{{idx.strftime('%d/%b/%y')}}', {%endfor%}],
+					labels: [{%for idx in result.get('df').index %} '{{idx.strftime('%d/%b/%y')}}', {%endfor%}],
 					datasets: [{
 						label: '% Sentimento Positivo',
-						data: [{%for positive in df_time_series['positive'] %} '{{positive*100}}', {%endfor%}],
+						data: [{%for positive in result.get('df').percent_positive %} '{{positive}}', {%endfor%}],
 						backgroundColor: ['rgba(75, 192, 192, 0.2)'],
 						borderColor:['rgb(75, 192, 192)'],
 						borderWidth:1,
                         tension: 0.1},
                         {label: '% Sentimento Negativo',
-						data: [{%for negative in df_time_series['negative'] %} '{{negative*100}}', {%endfor%}],
+						data: [{%for negative in result.get('df').percent_negative %} '{{negative}}', {%endfor%}],
 						backgroundColor: ['rgba(255, 99, 132, 0.2)'],
 						borderColor:['rgb(255, 99, 132)'],
 						borderWidth:1,
@@ -134,29 +137,30 @@
 				},
 			});
 
-            var ctx4 = document.getElementById('myChart4').getContext('2d');
+            var ctx4 = document.getElementById('myChart2').getContext('2d');
 			var chart = new Chart(ctx4, {
 				// The type of chart we want to create
 				type: 'bar',
 
 				// The data for our dataset
 				data: {
-					labels: [{%for idx in df_sentiment_quantities.positive.index %} '{{idx}}', {%endfor%}],
+					labels: [{%for idx in result.get('df').index %} '{{idx}}', {%endfor%}],
 					datasets: [{
 						label: ['Positivo'],
-						data: [{%for value in df_sentiment_quantities.positive.values %} '{{value}}', {%endfor%}],
+						data: [{%for value in result.get('df').qtd_positive %} '{{value}}', {%endfor%}],
                         backgroundColor: ['rgba(75, 192, 192, 0.2)'],
 						borderColor:['rgb(75, 192, 192)'],
                         borderWidth:1},
 
                         {label: ['Negativo'],
-						data: [{%for value in df_sentiment_quantities.negative.values %} '{{value}}', {%endfor%}],
+						data: [{%for value in result.get('df').qtd_negative %} '{{value}}', {%endfor%}],
                         backgroundColor: ['rgba(255, 99, 132, 0.2)'],
 						borderColor:['rgb(255, 99, 132)'],
                         borderWidth:1},
                     ]
 				}
 			});
+
         });
 		// ]]>
 	</script>

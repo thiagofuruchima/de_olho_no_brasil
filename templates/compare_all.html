@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+
+{% block title %}Result{% endblock %}
+
+{% block content %}
+
+    <script type="text/javascript" xmlns="http://www.w3.org/1999/html">
+        // <![CDATA[
+                $(document).ready(function() {
+                  $('#btn_loading').hide()
+                });
+
+                function update() {
+                    $('#btn_update').hide()
+                    $('#btn_compare_all').hide()
+                    $('#btn_loading').show()
+                };
+        // ]]>
+    </script>
+
+    <h1 class="text-center"><strong>DE OLHO NO BRASIL</strong></h1>
+	<p class="text-center">Qual o sentimento da população em relação aos serviços públicos, medido pelas redes sociais?</p>
+	<hr />
+
+    <h3 class="text-center">Foram analisados {{ result[['qtd_positive', 'qtd_negative', 'qtd_neutral']].sum().sum() }} tweets.</h3>
+
+	<p class="text-center">
+        Mensagens referentes ao período {{result.index.min().strftime('%d/%m/%y')}} até {{result.index.max().strftime('%d/%m/%y')}}!
+    </p>
+
+    <hr />
+    <p class="text-center">Variação do sentimento <strong>positivo</strong> da população ao longo do tempo:</p>
+    <hr class="w-50 mt-1 mb-1" style="margin-left: auto; margin-right: auto;"/>
+    <div class="row">
+        <div class="col-sm-3"></div>
+        <div class="col-sm-6">
+            <canvas id="myChart1"></canvas>
+        </div>
+        <div class="col-sm-3"></div>
+	</div>
+
+    <hr />
+    <p class="text-center">Variação do sentimento <strong>negativo</strong> da população ao longo do tempo:</p>
+    <hr class="w-50 mt-1 mb-1" style="margin-left: auto; margin-right: auto;"/>
+    <div class="row">
+        <div class="col-sm-3"></div>
+        <div class="col-sm-6">
+            <canvas id="myChart2"></canvas>
+        </div>
+        <div class="col-sm-3"></div>
+	</div>
+
+    <hr/>
+
+	<form class="content" action="{{ url_for('home') }}" method="post">
+        <div class="row">
+            <div class="col-sm"></div>
+            <div class="col-sm-4">
+                <select name="tema" class="form-select">
+                    <option value="" selected>Selecione um tema/serviço público:</option>
+                    <option value="Sistema Único de Saúde">Sistema Único de Saúde</option>
+                    <option value="Economia">Economia</option>
+                    <option value="Saúde">Saúde</option>
+                    <option value="Educação">Educação</option>
+                    <option value="Segurança">Segurança</option>
+                </select>
+            </div>
+			<div class="col-sm-3">
+				<button id='btn_update' type="submit" class="btn btn-lg btn-primary" onclick='update()'>Consultar</button>
+                <label>ou</label>
+                <a id='btn_compare_all' href="{{ url_for('compare_all') }}" class="btn btn-lg btn-info" onclick='update()'>Ver Todos!</a>
+				<button id='btn_loading' type="submit" class="btn btn-lg btn-warning">
+					<i class="fa fa-refresh fa-spin"></i> Carregando...
+				</button>
+			</div>
+            <div class="col-sm"></div>
+		</div>
+	</form>
+
+    <hr/>
+
+
+	<script>
+		$(function() {
+			// <![CDATA[
+
+			var ctx1 = document.getElementById('myChart1').getContext('2d');
+			var chart1 = new Chart(ctx1, {
+				// The type of chart we want to create
+				type: 'line',
+
+				// The data for our dataset
+				data: {
+					labels: [{%for date in result.query('matching_rules_tag=="Economia"').index %} '{{date.strftime('%d/%b/%y')}}', {%endfor%}],
+					datasets: [{
+						label: 'Economia',
+						data: [{%for sentiment in result.query('matching_rules_tag=="Economia"').percent_positive %} '{{sentiment}}', {%endfor%}],
+						backgroundColor: ['rgba(255, 159, 64, 0.2)'],
+						borderColor:['rgb(255, 159, 64)'],
+						borderWidth:1,
+                        tension: 0.1},
+
+                        {label: 'Saúde',
+						data: [{%for sentiment in result.query('matching_rules_tag=="Saúde"').percent_positive %} '{{sentiment}}', {%endfor%}],
+						backgroundColor: ['rgba(54, 162, 235, 0.2)'],
+						borderColor:['rgb(54, 162, 235)'],
+						borderWidth:1,
+                        tension: 0.1},
+
+                        {label: 'Educação',
+						data: [{%for sentiment in result.query('matching_rules_tag=="Educação"').percent_positive %} '{{sentiment}}', {%endfor%}],
+						backgroundColor: ['rgba(75, 152, 122, 0.2)'],
+						borderColor:['rgb(75, 152, 122)'],
+						borderWidth:1,
+                        tension: 0.1},
+
+                        {label: 'Segurança',
+						data: [{%for sentiment in result.query('matching_rules_tag=="Segurança"').percent_positive %} '{{sentiment}}', {%endfor%}],
+						backgroundColor: ['rgba(255, 99, 132, 0.2)'],
+						borderColor:['rgb(255, 99, 132)'],
+						borderWidth:1,
+                        tension: 0.1} ,
+
+                        {label: 'Imposto de Renda',
+						data: [{%for sentiment in result.query('matching_rules_tag=="Imposto de Renda"').percent_positive %} '{{sentiment}}', {%endfor%}],
+						backgroundColor: ['rgba(175, 122, 122, 0.2)'],
+						borderColor:['rgb(175, 122, 122)'],
+						borderWidth:1,
+                        tension: 0.1},
+
+                        {label: 'Sistema Único de Saúde',
+						data: [{%for sentiment in result.query('matching_rules_tag=="Sistema Único de Saúde"').percent_positive %} '{{sentiment}}', {%endfor%}],
+						backgroundColor: ['rgba(75, 192, 192, 0.2)'],
+						borderColor:['rgb(75, 192, 192)'],
+						borderWidth:1,
+                        tension: 0.1}
+                    ]
+				},
+			});
+
+			var ctx2 = document.getElementById('myChart2').getContext('2d');
+			var chart2 = new Chart(ctx2, {
+				// The type of chart we want to create
+				type: 'line',
+
+				// The data for our dataset
+				data: {
+					labels: [{%for date in result.query('matching_rules_tag=="Economia"').index %} '{{date.strftime('%d/%b/%y')}}', {%endfor%}],
+					datasets: [{
+						label: 'Economia',
+						data: [{%for sentiment in result.query('matching_rules_tag=="Economia"').percent_negative %} '{{sentiment}}', {%endfor%}],
+						backgroundColor: ['rgba(255, 159, 64, 0.2)'],
+						borderColor:['rgb(255, 159, 64)'],
+						borderWidth:1,
+                        tension: 0.1},
+
+                        {label: 'Saúde',
+						data: [{%for sentiment in result.query('matching_rules_tag=="Saúde"').percent_negative %} '{{sentiment}}', {%endfor%}],
+						backgroundColor: ['rgba(54, 162, 235, 0.2)'],
+						borderColor:['rgb(54, 162, 235)'],
+						borderWidth:1,
+                        tension: 0.1},
+
+                        {label: 'Educação',
+						data: [{%for sentiment in result.query('matching_rules_tag=="Educação"').percent_negative %} '{{sentiment}}', {%endfor%}],
+						backgroundColor: ['rgba(75, 152, 122, 0.2)'],
+						borderColor:['rgb(75, 152, 122)'],
+						borderWidth:1,
+                        tension: 0.1},
+
+                        {label: 'Segurança',
+						data: [{%for sentiment in result.query('matching_rules_tag=="Segurança"').percent_negative %} '{{sentiment}}', {%endfor%}],
+						backgroundColor: ['rgba(255, 99, 132, 0.2)'],
+						borderColor:['rgb(255, 99, 132)'],
+						borderWidth:1,
+                        tension: 0.1} ,
+
+                        {label: 'Imposto de Renda',
+						data: [{%for sentiment in result.query('matching_rules_tag=="Imposto de Renda"').percent_negative %} '{{sentiment}}', {%endfor%}],
+						backgroundColor: ['rgba(175, 122, 122, 0.2)'],
+						borderColor:['rgb(175, 122, 122)'],
+						borderWidth:1,
+                        tension: 0.1},
+
+                        {label: 'Sistema Único de Saúde',
+						data: [{%for sentiment in result.query('matching_rules_tag=="Sistema Único de Saúde"').percent_negative %} '{{sentiment}}', {%endfor%}],
+						backgroundColor: ['rgba(75, 192, 192, 0.2)'],
+						borderColor:['rgb(75, 192, 192)'],
+						borderWidth:1,
+                        tension: 0.1}
+                    ]
+				},
+			});
+
+        });
+		// ]]>
+	</script>
+
+{% endblock %}
