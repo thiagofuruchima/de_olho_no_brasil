@@ -40,6 +40,10 @@ def create_app(mode='dev'):
             return render_template('home.html')
         elif request.method == 'POST':
             tema = request.form['tema']
+
+            if (tema is None) or (tema == ''):
+                raise Exception("É necessário selecionar um item da lista!")
+
             return redirect(url_for('visualizar', tema=tema))
         else:
             raise Exception("Erro ao processar a solicitação.")
@@ -53,6 +57,7 @@ def create_app(mode='dev'):
         flash(str(e))
         return render_template('home.html')
 
+    @app.route('/visualizar/')
     @app.route('/visualizar/<tema>')
     def visualizar(tema):
 
