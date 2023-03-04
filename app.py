@@ -1,4 +1,4 @@
-from flask import Flask, render_template, flash, request
+from flask import Flask, render_template, flash, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
 import pandas as pd
@@ -24,11 +24,14 @@ def create_app(mode='dev'):
         print("Chave Secreta não encontrada.")
         exit(-1)
 
-    # create the Database extension
-    db = SQLAlchemy()
+    try:
+        # create the Database extension
+        db = SQLAlchemy()
 
-    # initialize the app with the extension
-    db.init_app(app)
+        # initialize the app with the extension
+        db.init_app(app)
+    except Exception as e:
+        raise ("Falha ao carregar o banco de dados.");
 
     @app.route('/', methods=['POST', 'GET'])
     def home():
@@ -36,7 +39,8 @@ def create_app(mode='dev'):
         if request.method == 'GET':
             return render_template('home.html')
         elif request.method == 'POST':
-            return update()
+            tema = request.form['tema']
+            return redirect(url_for('visualizar', tema=tema))
         else:
             raise Exception("Erro ao processar a solicitação.")
 
@@ -49,17 +53,14 @@ def create_app(mode='dev'):
         flash(str(e))
         return render_template('home.html')
 
-    def update():
-        if request.method == 'GET':
-            raise Exception("Erro ao processar a consulta. Informações obrigatórias não encontradas.")
-
-        tema = request.form['tema']
-
-        # Log the request type
-        app.logger.info("Consulta para o tema: {}".format(tema))
+    @app.route('/visualizar/<tema>')
+    def visualizar(tema):
 
         if (tema is None) or (tema == ''):
             raise Exception("É necessário selecionar um item da lista!")
+
+        # Log the request type
+        app.logger.info("Consulta para o tema: {}".format(tema))
 
         sql = '''SELECT 
                  sum( (sentiment_label = 'positive')::int ) as qtd_positive ,
@@ -85,8 +86,8 @@ def create_app(mode='dev'):
                                                       'total': total,
                                                       'df': df})
 
-    @app.route('/compare_all')
-    def compare_all():
+    @app.route('/comparar/todos')
+    def comparar():
 
         sql = '''SELECT 
                  sum( (sentiment_label = 'positive')::int ) as qtd_positive ,
@@ -105,7 +106,6 @@ def create_app(mode='dev'):
 
         result = pd.DataFrame(db.session.execute(text(sql)).mappings().all())
         result.set_index('date', inplace=True)
-
 
         return render_template('compare_all.html', result=result)
 
