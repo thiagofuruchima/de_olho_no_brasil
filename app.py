@@ -112,6 +112,6 @@ def create_app(mode='dev'):
         result = pd.DataFrame(db.session.execute(text(sql)).mappings().all())
         result.set_index('date', inplace=True)
 
-        return render_template('compare_all.html', result=result)
+        return render_template('comparar.html', result=result)
 
     return app
