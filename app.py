@@ -74,11 +74,11 @@ def create_app(mode='dev'):
                  avg( (sentiment_label = 'positive')::int ) * 100 as percent_positive ,
                  avg( (sentiment_label = 'negative')::int ) * 100 as percent_negative,
                  avg( (sentiment_label = 'neutral')::int )  * 100 as percent_neutral,
-                 date(tweet_created_at),
+                 (date(tweet_created_at) - interval '3' hour) as date,
                  matching_rules_tag
                  FROM tweet_analytics 
                  WHERE matching_rules_tag = \'{}\'
-                 GROUP by date(tweet_created_at), matching_rules_tag
+                 GROUP by 7, 8
                  ORDER by date
                 '''
 
@@ -101,11 +101,11 @@ def create_app(mode='dev'):
                  avg( (sentiment_label = 'positive')::int ) * 100 as percent_positive ,
                  avg( (sentiment_label = 'negative')::int ) * 100 as percent_negative,
                  avg( (sentiment_label = 'neutral')::int )  * 100 as percent_neutral,
-                 date(tweet_created_at),
+                 (date(tweet_created_at) - interval '3' hour) as date,
                  matching_rules_tag
                  FROM tweet_analytics 
                  WHERE matching_rules_tag in ('Economia', 'Educação', 'Imposto de Renda', 'Saúde', 'Segurança', 'Sistema Único de Saúde')
-                 GROUP by date(tweet_created_at), matching_rules_tag
+                 GROUP by 7, 8
                  ORDER by date
                 '''
 
