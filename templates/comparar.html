@@ -25,7 +25,7 @@
     <h3 class="text-center">Foram analisados {{ result[['qtd_positive', 'qtd_negative', 'qtd_neutral']].sum().sum() }} tweets.</h3>
 
 	<p class="text-center">
-        Mensagens referentes ao período {{result.index.min().strftime('%d/%m/%y')}} até {{result.index.max().strftime('%d/%m/%y')}}!
+        Mensagens referentes ao período {{result.index.min().strftime('%d/%m/%y')}} a {{result.index.max().strftime('%d/%m/%y')}}!
     </p>
 
     <hr />
